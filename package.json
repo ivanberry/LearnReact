@@ -5,10 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --open",
+    "watch": "webpack --watch",
     "build": "npx webpack"
   },
   "keywords": [],
   "author": "",
+  "sideEffects": false,
   "license": "ISC",
   "devDependencies": {
     "clean-webpack-plugin": "^0.1.19",
