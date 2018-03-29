@@ -2,15 +2,14 @@ import printMe from './print.js';
 import './style.css';
 import {cube} from './math.js';
 
+if(process.env.NODE_ENV !== 'production') {
+  console.log('Looks like we are in development mode!');
+}
+
 function component() {
   let el = document.createElement('pre');
-  //let button = document.createElement('button');
 
-  //el.innerHTML = ['Hello webpack', '5 cubed reuslt is' ].join('\n');
   el.innerHTML = ['Tree Sharking', cube(5)].join('\n');
-  //button.innerText = 'Click!';
-  //button.onclick = printMe;
-  //el.appendChild(button);
   return el;
 
 }
