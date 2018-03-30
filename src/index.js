@@ -1,24 +1,12 @@
-import printMe from './print.js';
-import './style.css';
-import {cube} from './math.js';
-
-if(process.env.NODE_ENV !== 'production') {
-  console.log('Looks like we are in development mode!');
+function getComponent() {
+  return import(/* webpackChunkName: "lodash" */ 'lodash').then(_ => {
+    var el = document.createElement('div');
+    el.innerHTML = _.default.join(['Hello', 'World'], ' ');
+    return el;
+  }).catch(e => 'A error happens on dynamic load module');
 }
 
-function component() {
-  let el = document.createElement('pre');
+getComponent().then(component => {
+  document.body.appendChild(component);
+}).catch(e => console.log(e));
 
-  el.innerHTML = ['Tree Sharking', cube(5)].join('\n');
-  return el;
-
-}
-
-document.body.appendChild(component());
-
-if (module.hot) {
-  module.hot.accept('./print.js', function() {
-    console.log('Accepting the updated printMe module!');
-    printMe();
-  })
-}
