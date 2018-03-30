@@ -1,29 +1,66 @@
-### Caching
+### Shimming
 
-So we're using webpack to bundle our modular application which yields a
-deployable `/dist` directory. Once the contents of `/dist` have been
-deployed to a server, clients will hit that server a grab the site and
-its assets. The last step can be time consuming, which is why browsers
-use a technique called Caching. This allow sites to load faster with
-less unncecessary network tranffice, however it can also cause headaches
-when you need new code to picked up.
+The webpack compiler can understand modules written as ES2015 modules,
+CommonJS or AMD. However, some third party libraries may expect global
+dependencies(eg. jQuery). The libraries might also create globals which
+need to be exported. These 'broken modules' are one instance where
+*shimming* comes into play.
 
-#### Output Filenames
+Another instance where *shimming* can be useful is when you want to
+polyfill browser functionality to support more users. In this case, you
+may only want to deliver those polyfills to the browsers that need
+patching.
 
-A simple way to ensure the browser picks up changed files is by using
-`output.filename` substitutions. however it's even better to use the
-`[chunkhash]` substitution which includes a chunk-specific hash in the
-filename.
+Remember that `lodash` package we were using? For demostration
+purposes,let's say we wanted to instead provide this as a global
+throughout our application. To do this, we can use the `ProvidePlugin`.
+
+The `ProvidePlugin` makes a package available as a variable in every
+module compiled through webpack. If webpack sees that variable used, it
+will include the given package in the final module.
+
+#### Granular Shimming
+
+Some legacy modules rely on `this` being the `window` object. Let's
+update our `index.js`.
 
 ```javascript
 ...
-output: {
-  filename: '[name].[chunkhash].js',
-  path: path.resolve(__dirname, 'dist')
+this.alert('Hmm, this gonna be window');
+...
+```
+This becomes a problem when the module is executed in a CommonJs context
+when `this` is equal to `module.exports`. In this case you can override
+`this` using the `imports-loader`.
+
+But in webpack v4, it is handle truly by webpack. and below version,
+config update as below:
+
+```javascript
+...
+module: {
+  rules: [
+    {
+      test: require.resolve('index.js'),
+      use: 'imports-loader?this=>window
+    }
+  ]
 }
 ...
 ```
-In webpack below 4.0, if we run another build without making any
-changes, we'd expect that filename to stay the same. However, we will
-find that it's not the case. but in 4.0, this has been fixed. So we just
-step out.
+### Global Exports
+
+Let's say a library creates a global that it expects consumers to use.
+
+```javascript
+...
+module: {
+  rules: [
+    {
+      test: require.resolve('global.js'),
+      use: 'exports-loader?file,parse=helpers.parse'
+    }
+  ]
+}
+...
+```

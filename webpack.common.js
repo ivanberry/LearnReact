@@ -1,14 +1,21 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
 //const webpack = require('webpack');
 
 module.exports = {
-  entry: './src/index.js',
+  entry: {
+    index: './src/index.js',
+    polyfills: './src/polyfills.js'
+  },
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Caching'
-    })
+    }),
+    new webpack.ProvidePlugin({
+      _: 'lodash'
+    }),
   ],
   //optimization: {
     //splitChunks: {
@@ -22,8 +29,8 @@ module.exports = {
     //}
   //},
   output: {
-    //filename: '[name].bundle.js',
-    filename: '[name].[chunkhash].js',
+		filename: '[name].bundle.js',
+    //filename: '[name].[chunkhash].js',
     path: path.resolve(__dirname, 'dist')
   },
 };

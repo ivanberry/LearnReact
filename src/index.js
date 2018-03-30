@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import './polyfills.js';
 
 function component() {
   var el = document.createElement('div');
