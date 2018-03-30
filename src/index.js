@@ -1,12 +1,21 @@
-function getComponent() {
-  return import(/* webpackChunkName: "lodash" */ 'lodash').then(_ => {
-    var el = document.createElement('div');
-    el.innerHTML = _.default.join(['Hello', 'World'], ' ');
-    return el;
-  }).catch(e => 'A error happens on dynamic load module');
+import _ from 'lodash';
+
+function component() {
+  var el = document.createElement('div');
+  var button = document.createElement('button');
+  var br = document.createElement('br');
+
+  button.innerHTML = 'Clicked to Load print.js';
+  el.innerHTML = _.join(['Hello', 'Lazy'], ' ');
+  el.appendChild(br);
+  el.appendChild(button);
+
+  button.onclick = e => import(/* webpackChunkName: "print" */ './print').then( module => {
+    var print = module.default;
+    print();
+  });
+
+  return el;
 }
 
-getComponent().then(component => {
-  document.body.appendChild(component);
-}).catch(e => console.log(e));
-
+document.body.appendChild(component());
