@@ -1,66 +1,63 @@
-### Shimming
+## Build Performance
 
-The webpack compiler can understand modules written as ES2015 modules,
-CommonJS or AMD. However, some third party libraries may expect global
-dependencies(eg. jQuery). The libraries might also create globals which
-need to be exported. These 'broken modules' are one instance where
-*shimming* comes into play.
+### Stay up to Date
 
-Another instance where *shimming* can be useful is when you want to
-polyfill browser functionality to support more users. In this case, you
-may only want to deliver those polyfills to the browsers that need
-patching.
+Use the latest webpack version always.
 
-Remember that `lodash` package we were using? For demostration
-purposes,let's say we wanted to instead provide this as a global
-throughout our application. To do this, we can use the `ProvidePlugin`.
+### Loaders
 
-The `ProvidePlugin` makes a package available as a variable in every
-module compiled through webpack. If webpack sees that variable used, it
-will include the given package in the final module.
-
-#### Granular Shimming
-
-Some legacy modules rely on `this` being the `window` object. Let's
-update our `index.js`.
+Apply loaders to the minimal number of modules necessary. Instead of:
 
 ```javascript
-...
-this.alert('Hmm, this gonna be window');
-...
-```
-This becomes a problem when the module is executed in a CommonJs context
-when `this` is equal to `module.exports`. In this case you can override
-`this` using the `imports-loader`.
-
-But in webpack v4, it is handle truly by webpack. and below version,
-config update as below:
-
-```javascript
-...
-module: {
-  rules: [
-    {
-      test: require.resolve('index.js'),
-      use: 'imports-loader?this=>window
-    }
-  ]
+{
+	test: /\.js$/,
+	loader: 'babel-loader'
 }
-...
 ```
-### Global Exports
-
-Let's say a library creates a global that it expects consumers to use.
+Use `include` field to only apply the loader modules that actually need to be transformed by it:
 
 ```javascript
-...
-module: {
-  rules: [
-    {
-      test: require.resolve('global.js'),
-      use: 'exports-loader?file,parse=helpers.parse'
-    }
-  ]
+{
+	test: /\.js$/,
+	include: path.resolve(__dirname, 'src'),
+	loader: 'babel-loader'
 }
-...
 ```
+
+### Bootstrap
+
+Each additional loader/plugin has a bootup time. Try to use as few different tools as possible.
+
+### Resoving
+
+The following steps can increase the speed of resolving:
+
+- Minimize the number of items in `resolve.modules`, `resolve.extensions`, `resolve.manifest`, `resolve.descriptionFiles` as they increase the number of filesystem calls
+- Set `resolve.symlinks: false` if you dont use symlinks.
+- Set `resolve.cacheWithContext: false` if you use cunstom resolving plugins, that are not context spefic.
+
+### Dlls
+
+Use the `DllPlugin` to move code that is changed less often into a seperate compilation. This will improve the application's compilation speed, although it does increase complexity of the build process.
+
+### Smaller = Faster
+
+Decrease the total size of the compilation to increase to increase build performance. Try to keep chunks small.
+
+- Use fewer/smaller libraries.
+- use the `CommonChunksPlugin` in Muti-Page Application
+- Use the `CommonChunksPlugin` in `async` mode in MPA
+- Remove unused code
+- Only compile the part of the code you are currently developing on.
+
+### Worker Pool
+
+The `thread-loader` can be used to offload expensive loaders to a worker pool.
+
+### Persistent cache
+
+Enable persistent caching with the `cache-loader`. Clear cache directly 'postinstall' in 'package.json'.
+
+### [More](https://webpack.js.org/guides/build-performance/)
+
+
