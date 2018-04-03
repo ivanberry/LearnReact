@@ -1,4 +1,4 @@
-##客户端路由
+## 客户端路由
 
 ### 基于hash及hashchange事件
 
@@ -44,7 +44,7 @@ router.route('/contact', function() {
 
 ```
 
-(简单基于hash的路由demo)[https://jsfiddle.net/ivan_web/q25tmy5u/19/]
+[简单基于hash的路由demo](https://jsfiddle.net/ivan_web/q25tmy5u/19/)
 
 #### HTML5 history API
 
